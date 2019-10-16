@@ -3,6 +3,11 @@ import os
 import datetime
 from netmiko import ConnectHandler
 
+# Пусть к домашнему каталогу, IP-адрес TFTP-сервера, путь к конфигурационному файлу TFTP-сервера
+HOME_LINK = '/home/tftp/'
+TFTP_IP = '172.31.4.13'
+TFTP_CONFIG = '/etc/default/tftpd-hpa'
+
 # IP-адреса устройств, с которых собираем конфигурационные файлы
 DEVICES_IP = ['172.31.0.20', '172.31.0.21','172.31.0.22', '172.31.0.23', '172.31.0.24', '172.31.0.25', '172.31.0.64', '172.31.0.67', '172.31.0.76', '172.31.0.77',
 '172.31.0.42', '172.31.0.43', '172.31.0.44', '172.31.0.45', '172.31.0.46', '172.31.0.47', '172.31.0.48', '172.31.0.49', '172.31.0.50', '172.31.0.90']
@@ -11,7 +16,7 @@ CORE_IP = ['172.31.0.1', '172.31.0.9', '172.31.0.10', '172.31.0.11', '172.31.0.1
 
 # Каталог по умолчанию для TFTP
 folder = str(datetime.date.today())
-param = '"/home/tftp/' + folder + '"'
+path = '"' + HOME_LINK + folder + '"'
 
 # Редактирование конфигурационного файла TFTP-сервера с учётом изменения каталога по умолчанию. Каталог именуется по текущей дате
 def edit():
@@ -19,14 +24,14 @@ def edit():
     str2 = 'TFTP_ADDRESS="0.0.0.0:69"'
     str3 = 'TFTP_OPTIONS="--secure --create"'
 
-    with open('/etc/default/tftpd-hpa') as cfg:
+    with open(TFTP_CONFIG) as cfg:
         for line in cfg:
             if line.startswith('TFTP_DIRECTORY'):
                 break
     sett = line.split('=')[1].strip()
-    line = line.replace(sett,param)
+    line = line.replace(sett,path)
 
-    with open('/etc/default/tftpd-hpa', 'w') as cfg:
+    with open(TFTP_CONFIG, 'w') as cfg:
         cfg.write(str1)
         cfg.write('\n' + str2)
         cfg.write('\n' + str3)
@@ -35,10 +40,9 @@ def edit():
 
 # Здесь создаётся папка, куда складываются конфиги, и перезапускается служба TFTP
 def tftp_start():
-    os.system('cd /home/tftp/')
-    os.mkdir(folder)
-    os.system('chown tftp:tftp ' + folder)
-    os.system('chmod 777 ' + folder)
+    os.mkdir(HOME_LINK + folder)
+    os.system('chown tftp:tftp ' + HOME_LINK + folder)
+    os.system('chmod 766 ' + HOME_LINK + folder)
     os.system('systemctl restart tftpd-hpa')
 
 # Копирование конфигурационных файлов с сетевых устройств, используем библиотеку netmiko
@@ -50,7 +54,7 @@ def copy_config():
             'username'    : 'admin',
             'password'    : 'password' }
         connect = ConnectHandler(**DEVICES_PARAMS)
-        connect.send_command('copy running-config tftp 172.31.4.13 conf-' + str(IP))
+        connect.send_command('copy running-config tftp ' + TFTP_IP + ' conf-' + str(IP))
 
     for IP in CORE_IP:
         DEVICES_PARAMS = { 
@@ -60,7 +64,7 @@ def copy_config():
             'password'    : 'password',
             'global_delay_factor' : 2 }
         connect = ConnectHandler(**DEVICES_PARAMS)
-        connect.send_command('copy running-config tftp 172.31.4.13 conf-' + str(IP)) 
+        connect.send_command('copy running-config tftp ' + TFTP_IP + ' conf-' + str(IP)) 
 
 def main():
     edit()
