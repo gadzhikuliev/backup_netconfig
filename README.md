@@ -1,1 +1,2 @@
-# backup_netconfig
+- Install the library netmiko
+- Set the parametr "device type" in dependence on your vendor
