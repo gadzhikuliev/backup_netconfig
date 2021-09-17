@@ -54,7 +54,7 @@ def copy_config():
             'username'    : 'admin',
             'password'    : 'password' }
         connect = ConnectHandler(**DEVICES_PARAMS)
-        connect.send_command('copy running-config tftp ' + TFTP_IP + ' conf-' + str(IP))
+        connect.send_command('copy startup-config tftp ' + TFTP_IP + ' conf-' + str(IP))
         connect.disconnect()
 
     for IP in CORE_IP:
@@ -65,7 +65,7 @@ def copy_config():
             'password'    : 'password',
             'global_delay_factor' : 2 }
         connect = ConnectHandler(**DEVICES_PARAMS)
-        connect.send_command('copy running-config tftp ' + TFTP_IP + ' conf-' + str(IP))
+        connect.send_command('copy startup-config tftp ' + TFTP_IP + ' conf-' + str(IP))
         connect.disconnect()
 
 def main():
