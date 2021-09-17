@@ -1,4 +1,3 @@
-import collections
 import os
 import datetime
 from netmiko import ConnectHandler
