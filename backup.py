@@ -4,7 +4,7 @@ from netmiko import ConnectHandler
 
 # Пусть к домашнему каталогу, IP-адрес TFTP-сервера, путь к конфигурационному файлу TFTP-сервера
 HOME_LINK = '/home/tftp/'
-TFTP_IP = '172.31.4.13'
+TFTP_IP = '172.31.4.14'
 TFTP_CONFIG = '/etc/default/tftpd-hpa'
 
 # IP-адреса устройств, с которых собираем конфигурационные файлы
